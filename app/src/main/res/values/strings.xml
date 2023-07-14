@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">MovieApp</string>
+    <string name="popular">Popular Movies</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="error_fetch_movies">Please check your internet connection</string>
 </resources>
