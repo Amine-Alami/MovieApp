@@ -1,4 +1,4 @@
-package com.hitema.movieapp.network
+package com.hitema.movieapp
 
 import retrofit2.Call
 import retrofit2.Callback
@@ -106,5 +106,20 @@ object MoviesRepository {
                     onError.invoke()
                 }
             })
+    }
+
+    sealed class Result<out T> {
+        data class Success<out T>(val data: T) : Result<T>()
+        data class Error(val exception: Exception) : Result<Nothing>()
+    }
+
+    suspend fun getMovieDetails(id: Int): Result<Movie> {
+        val response = api.getMovieDetails(id)
+        if(response.isSuccessful) {
+            response.body()?.let {
+                return Result.Success(it)
+            }
+        }
+        return Result.Error(Exception("Error: ${response.message()}"))
     }
 }

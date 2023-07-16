@@ -1,4 +1,4 @@
-package com.hitema.movieapp.network
+package com.hitema.movieapp
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +8,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
-import com.hitema.movieapp.R
 
 class MoviesAdapter(
     private var movies: MutableList<Movie>,

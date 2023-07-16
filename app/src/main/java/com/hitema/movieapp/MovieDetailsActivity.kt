@@ -1,13 +1,18 @@
-package com.hitema.movieapp.network
+package com.hitema.movieapp
 
+import android.content.Context
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
-import com.hitema.movieapp.R
+import com.google.gson.Gson
 
 const val MOVIE_BACKDROP = "extra_movie_backdrop"
 const val MOVIE_POSTER = "extra_movie_poster"
@@ -24,10 +29,21 @@ class MovieDetailsActivity : AppCompatActivity() {
     private lateinit var rating: RatingBar
     private lateinit var releaseDate: TextView
     private lateinit var overview: TextView
+    private var favouriteItem: MenuItem? = null
+    private var currentMovie: Movie? = null
+
+    private val _movieDetails = MutableLiveData<Movie>()
+    val movieDetails: LiveData<Movie> get() = _movieDetails
+
+    private var isFavorite: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_movie_details)
+
+        // Load the movie
+        val movieId = intent.getIntExtra("EXTRA_MOVIE_ID", -1)
+//        currentMovie = findViewById(R.id)
 
         backdrop = findViewById(R.id.movie_backdrop)
         poster = findViewById(R.id.movie_poster)
@@ -42,6 +58,35 @@ class MovieDetailsActivity : AppCompatActivity() {
             populateDetails(extras)
         } else {
             finish()
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.movie_details_menu, menu)
+        favouriteItem = menu.findItem(R.id.action_favorite)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_favorite -> {
+                toggleFavourite()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun toggleFavourite() {
+        currentMovie?.let { movie ->
+            val movieIsFavourite = isFavourite(movie)
+            if (movieIsFavourite) {
+                favouriteItem?.setIcon(R.drawable.like_green)
+                removeFromFavourites(movie)
+            } else {
+                favouriteItem?.setIcon(R.drawable.like)
+                addToFavourites(movie)
+            }
         }
     }
 
@@ -65,4 +110,25 @@ class MovieDetailsActivity : AppCompatActivity() {
         releaseDate.text = extras.getString(MOVIE_RELEASE_DATE, "")
         overview.text = extras.getString(MOVIE_OVERVIEW, "")
     }
+
+    private val sharedPreferences by lazy {
+        getSharedPreferences("favorites", Context.MODE_PRIVATE)
+    }
+
+    fun addToFavourites(movie: Movie) {
+        val editor = sharedPreferences.edit()
+        editor.putString(movie.id.toString(), Gson().toJson(movie))
+        editor.apply()
+    }
+
+    fun removeFromFavourites(movie: Movie) {
+        val editor = sharedPreferences.edit()
+        editor.remove(movie.id.toString())
+        editor.apply()
+    }
+
+    fun isFavourite(movie: Movie): Boolean {
+        return sharedPreferences.contains(movie.id.toString())
+    }
+
 }

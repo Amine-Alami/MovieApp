@@ -1,4 +1,4 @@
-package com.hitema.movieapp.network
+package com.hitema.movieapp
 
 import com.google.gson.annotations.SerializedName
 

@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -18,6 +19,13 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        buildConfigField "String", "TMDB_API_KEY", "\"${properties.getProperty('TMDB_API_KEY')}\""
+
+        /*def tmdbApiKey = project.findProperty("tmdb_api_key") ?: ""
+        buildConfigField "String", "TMDB_API_KEY", "\"${tmdbApiKey}\""*/
     }
 
     buildTypes {
@@ -76,13 +84,20 @@ dependencies {
     // https://github.com/google/gson
     implementation 'com.google.code.gson:gson:2.8.5'
 
-    // Retrofit
-    // https://github.com/square/retrofit
-    implementation 'com.squareup.retrofit2:retrofit:2.6.1'
-    implementation 'com.squareup.retrofit2:converter-gson:2.6.1'
-
     // ViewModel and LiveData
     // https://developer.android.com/jetpack/androidx/releases/lifecycle
     implementation "androidx.lifecycle:lifecycle-extensions:2.1.0"
+
+    def lifecycle_version = "2.4.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+
+
+    implementation "com.google.dagger:hilt-android:2.35"
+    kapt "com.google.dagger:hilt-compiler:2.35"
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07"
+    implementation 'com.google.android.material:material:1.9.0'
 
 }
